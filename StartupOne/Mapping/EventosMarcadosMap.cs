@@ -34,6 +34,9 @@ namespace StartupOne.Mapping
 
             builder.Property(u => u.Categoria)
                 .HasColumnName("DS_CATEGORIA");
+            
+            builder.Property(u => u.Status)
+                   .HasColumnName("DS_STATUS");
 
             builder.HasOne(x => x.Usuario)
                    .WithMany(u => u.EventosMarcados)

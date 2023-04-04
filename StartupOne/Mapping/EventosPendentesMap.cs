@@ -28,6 +28,9 @@ namespace StartupOne.Mapping
             builder.Property(u => u.Prioridade)
                 .HasColumnName("ST_PRIORIDADE");
 
+            builder.Property(u => u.TempoEstimado)
+                   .HasColumnName("NM_TEMPO_ESTIMADO");
+
             builder.HasOne(x => x.Usuario)
                    .WithMany(u => u.EventosPendentes)
                    .HasForeignKey(x => x.IdUsuario)

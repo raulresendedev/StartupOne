@@ -15,10 +15,12 @@ namespace StartupOne.Models
         public string Nome { get; set; }
         [Required]
         public int Prioridade { get; set; }
+        [Required]
+        public int TempoEstimado { get; set; }
         public int? Categoria { get; set; }
         public bool Status { get; set; }
 
-        public EventosPendentes(int idEventoPendente, int idUsuario, string nome, int? categoria, int prioridade, bool status)
+        public EventosPendentes(int idEventoPendente, int idUsuario, string nome, int? categoria, int prioridade, bool status, int tempoEstimado)
         {
             IdEventoPendente = idEventoPendente;
             IdUsuario = idUsuario;
@@ -26,6 +28,7 @@ namespace StartupOne.Models
             Categoria = categoria;
             Prioridade = prioridade;
             Status = status;
+            TempoEstimado = tempoEstimado;
         }
     }
 }
