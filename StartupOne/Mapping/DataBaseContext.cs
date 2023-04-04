@@ -22,10 +22,13 @@ namespace StartupOne.Mapping
         {
             modelBuilder.ApplyConfiguration(new UsuarioMap());
             modelBuilder.ApplyConfiguration(new EventosMarcadosMap());
+            modelBuilder.ApplyConfiguration(new EventosPendentesMap());
         }
 
         public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<EventosMarcados> EventosMarcados { get; set; }
+
+        public DbSet<EventosPendentes> EventosPendentes { get; set; }
 
     }
 }

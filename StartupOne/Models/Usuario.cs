@@ -15,6 +15,7 @@ namespace StartupOne.Models
         [Required]
         public string Password { get; set; }
         public ICollection<EventosMarcados>? EventosMarcados { get; set; } = new List<EventosMarcados>();
+        public ICollection<EventosPendentes>? EventosPendentes { get; set; } = new List<EventosPendentes>();
 
         public Usuario(int idUsuario, string login, string email, string password)
         {
