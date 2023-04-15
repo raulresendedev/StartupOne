@@ -72,7 +72,7 @@ namespace StartupOne.Service
                     temposDoDia = AtualizarperiodoPermitido(temposDoDia, eventoPendente);
                     foreach (var tempo in temposDoDia)
                     {
-                        if (eventoPendente.TempoEstimado <= tempo.Item2 && tempo.Item1 == "livre")
+                        if (eventoPendente.TempoEstimado + 10 <= tempo.Item2 && tempo.Item1 == "livre")
                         {
                             var index = temposDoDia.IndexOf(tempo);
 
