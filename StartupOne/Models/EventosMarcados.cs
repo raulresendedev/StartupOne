@@ -14,16 +14,16 @@ namespace StartupOne.Models
         [Required]
         public string Nome { get; set; }
         [Required]
-        public DateTime? Inicio { get; set; }
+        public DateTime Inicio { get; set; }
         [Required]
-        public DateTime? Fim { get; set; }
+        public DateTime Fim { get; set; }
         [Required]
         public bool Status { get; set; }
         public int? Recorrente { get; set; }
         public int? Categoria { get; set; }
 
 
-        public EventosMarcados(int idEventoMarcado, int idUsuario, string nome, DateTime? inicio, DateTime? fim, int? recorrente, int? categoria, bool status)
+        public EventosMarcados(int idEventoMarcado, int idUsuario, string nome, DateTime inicio, DateTime fim, int? recorrente, int? categoria, bool status)
         {
             IdEventoMarcado = idEventoMarcado;
             IdUsuario = idUsuario;

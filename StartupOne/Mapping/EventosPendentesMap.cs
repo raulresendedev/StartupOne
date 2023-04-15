@@ -25,8 +25,16 @@ namespace StartupOne.Mapping
             builder.Property(u => u.Status)
                    .HasColumnName("DS_STATUS");
 
+            builder.Property(u => u.PeriodoInicio)
+                    .IsRequired()
+                    .HasColumnName("DT_PERIODO_INICIO");
+
+            builder.Property(u => u.PeriodoFim)
+                    .IsRequired()
+                    .HasColumnName("DT_PERIODO_FIM");
+
             builder.Property(u => u.Prioridade)
-                .HasColumnName("ST_PRIORIDADE");
+                    .HasColumnName("ST_PRIORIDADE");
 
             builder.Property(u => u.TempoEstimado)
                    .HasColumnName("NM_TEMPO_ESTIMADO");

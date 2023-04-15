@@ -84,5 +84,21 @@ namespace StartupOne.Controllers
                 }
             }
         }
+
+        [HttpGet("encontrar-horarios/{idUsuario}")]
+        public IActionResult EncontrarHorarios([FromRoute] int idUsuario)
+        {
+            {
+                try
+                {
+                    _eventosPendentesService.EncontrarHorarios(idUsuario);
+                    return Ok(idUsuario);
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(ex.Message);
+                }
+            }
+        }
     }
 }
