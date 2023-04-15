@@ -11,8 +11,7 @@ namespace StartupOne.Models
         public int IdUsuario { get; set; }
         [NotMapped]
         public Usuario? Usuario { get; set; }
-        [Required]
-        public string Nome { get; set; }
+        public string? Nome { get; set; }
         [Required]
         public DateTime Inicio { get; set; }
         [Required]
@@ -25,6 +24,9 @@ namespace StartupOne.Models
 
         public EventosMarcados(int idEventoMarcado, int idUsuario, string nome, DateTime inicio, DateTime fim, int? recorrente, int? categoria, bool status)
         {
+            if (nome == null)
+                nome = "Novo Evento";
+
             IdEventoMarcado = idEventoMarcado;
             IdUsuario = idUsuario;
             Nome = nome;

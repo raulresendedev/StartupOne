@@ -1,5 +1,6 @@
 ﻿using StartupOne.Models;
 using StartupOne.Repository;
+using System.Collections.Generic;
 using System.Runtime.Intrinsics.X86;
 using System.Security.Cryptography;
 
@@ -37,68 +38,110 @@ namespace StartupOne.Service
             return _eventosPendentesRepository.ObterEventosPendentesDoUsuario(idUsuario);
         }
 
-        public void EncontrarHorarios(int idUsuario)
+        public string EncontrarHorarios(int idUsuario)
         {
+            bool todosEventosAlocados = false;
+            int i = 0;
+            List<(string, int)>[] lists = new List<(string, int)>[30]; //DEBUGAR APENAS  
+            ICollection<EventosMarcados> eventosMarcadosNoDia = new List<EventosMarcados>();
+            List<(string, int)> temposDoDia = new List<(string, int)>();
             ICollection<EventosPendentes> eventosPendentes = _eventosPendentesRepository
                                                                 .ObterEventosPendentesDoUsuario(idUsuario)
                                                                 .OrderBy(x => x.Prioridade)
+                                                                .Where(x => x.Status == true)
                                                                 .ToList();
 
-            List<(string, int)>[] lists = new List<(string, int)>[30];
-
-            bool todosEventosAlocados = false;
-            
-            int i = 0;
+            if (eventosPendentes.Count == 0)
+                return "não há eventos pendentes";
 
             while (!todosEventosAlocados)
             {
                 i++;
 
                 dataAtual = dataAtual.AddDays(i);
-                
-                ICollection<EventosMarcados> eventosMarcados = _eventosMarcadosRepository
-                                                                .ObterEventosMarcadosDoUsuario(idUsuario)
-                                                                .Where(x => x.Inicio.DayOfYear == dataAtual.DayOfYear)
-                                                                .OrderBy(x => x.Inicio)
-                                                                .ToList();
-                
-                var eventosNaoAlocados = eventosPendentes.Where(e => e.Status == true).ToList();
 
-                List<(string, int)> temposDoDia = ObterTemposDoDia(eventosMarcados);
-
+                var eventosNaoAlocados = eventosPendentes.Where(e => e.Status == true).OrderBy(x => x.TempoEstimado).ToList();
 
                 foreach (var eventoPendente in eventosNaoAlocados)
                 {
+                    eventosMarcadosNoDia = _eventosMarcadosRepository.ObterEventosMarcadosDoUsuario(idUsuario)
+                                                                .Where(x => x.Inicio.DayOfYear == dataAtual.DayOfYear)
+                                                                .OrderBy(x => x.Inicio)
+                                                                .ToList();
+
+                    int intervalo = eventoPendente.TempoEstimado == 1440 ? 0 : 10;
+                    
+                    temposDoDia = ObterTemposDoDia(eventosMarcadosNoDia);
                     temposDoDia = AtualizarperiodoPermitido(temposDoDia, eventoPendente);
                     foreach (var tempo in temposDoDia)
                     {
-                        if (eventoPendente.TempoEstimado + 10 <= tempo.Item2 && tempo.Item1 == "livre")
+                        if (eventoPendente.TempoEstimado + intervalo <= tempo.Item2 && tempo.Item1 == "livre")
                         {
-                            var index = temposDoDia.IndexOf(tempo);
-
-                            int tempoEvento = eventoPendente.TempoEstimado;
-
-                            int tempoRestante = (tempo.Item2 - tempoEvento) / 2;
-
-                            temposDoDia.Insert(index, ("livre", tempoRestante));
-
-                            temposDoDia[index + 1] = ("ocupado", tempoEvento);
-
-                            temposDoDia.Insert(index + 2, ("livre", tempoRestante));
-
-                            eventoPendente.Status = false;
-
+                            AlocarEventoPendente(temposDoDia, tempo, eventoPendente);
                             break;
-
                         }
                     }
                 }
-                lists[i] = temposDoDia;
                 todosEventosAlocados = eventosPendentes.All(e => e.Status == false);
+                lists[i] = temposDoDia;
             }
-            Console.WriteLine(lists.ToString());
+            return "Ok";
         }
+        public void AlocarEventoPendente(List<(string, int)> temposDoDia, (string, int) tempo, EventosPendentes eventoPendente)
+        {
+            var index = temposDoDia.IndexOf(tempo);
 
+            int tempoEvento = eventoPendente.TempoEstimado;
+
+            int tempoRestante = (tempo.Item2 - tempoEvento) / 2;
+
+            if (tempoRestante == 0)
+            {
+                temposDoDia[index] = ("ocupado", tempoEvento);
+            }
+            else
+            {
+                temposDoDia.Insert(index, ("livre", tempoRestante));
+
+                temposDoDia[index + 1] = ("ocupado", tempoEvento);
+
+                temposDoDia.Insert(index + 2, ("livre", tempoRestante));
+            }
+
+            int minutosInicio = 0;
+
+            for (int j = 0; j <= index; j++)
+            {
+                minutosInicio += temposDoDia[j].Item2;
+            }
+
+            int minutosFim = minutosInicio + temposDoDia[index + 1].Item2;
+
+            DateTime dataZerada = new DateTime();
+            dataZerada = dataAtual;
+            dataZerada = dataZerada.AddHours(0).AddMinutes(0).AddSeconds(0).AddMilliseconds(0);
+
+            DateTime resultadoInicio = dataZerada.AddMinutes(minutosInicio);
+            DateTime resultadoFim = dataZerada.AddMinutes(minutosFim);
+
+
+            eventoPendente.Status = false;
+
+            _eventosPendentesRepository.Atualizar(eventoPendente);
+
+            EventosMarcados alocarEvento = new EventosMarcados(
+                    0,
+                    eventoPendente.IdUsuario,
+                    eventoPendente.Nome,
+                    resultadoInicio,
+                    resultadoFim,
+                    null,
+                    null,
+                    false
+                );
+
+            _eventosMarcadosRepository.Adicionar(alocarEvento);
+        }
         public List<(string, int)> ObterTemposDoDia(ICollection<EventosMarcados> eventosMarcados)
         {
             List<(string, int)> listaDeTuplas = new List<(string, int)>();
@@ -138,64 +181,62 @@ namespace StartupOne.Service
 
             return listaDeTuplas;
         }
-
         public List<(string, int)> AtualizarperiodoPermitido(List<(string, int)> temposDoDia, EventosPendentes eventoPendente)
         {
             var periodoInicioMinutos = eventoPendente.PeriodoInicio.TimeOfDay.TotalMinutes;
             var periodoFimMinutos = eventoPendente.PeriodoFim.TimeOfDay.TotalMinutes;
 
-            if(periodoFimMinutos == 0)
-                periodoFimMinutos = 1439;
-
-            if (periodoInicioMinutos == 0)
-                periodoInicioMinutos = 1;
-
             var minutos = 0;
             int i = -1;
 
-            while (periodoInicioMinutos > minutos)
+            if (periodoInicioMinutos != 0)
             {
-                i++;
-                minutos += temposDoDia[i].Item2;
+
+                while (periodoInicioMinutos > minutos)
+                {
+                    i++;
+                    minutos += temposDoDia[i].Item2;
+                }
+
+                if (temposDoDia[i].Item1 == "livre")
+                {
+                    int minutosLivreRestantes = (int)(minutos - periodoInicioMinutos);
+                    temposDoDia.RemoveRange(0, i + 1);
+                    temposDoDia.Insert(0, ("livre", minutosLivreRestantes));
+                    temposDoDia.Insert(0, ((string, int))("ocupado", periodoInicioMinutos));
+                }
+                else
+                {
+                    int minutosOcupadosRestantes = (int)(minutos - periodoInicioMinutos);
+                    temposDoDia.RemoveRange(0, i + 1);
+                    temposDoDia.Insert(0, ((string, int))("ocupado", periodoInicioMinutos + minutosOcupadosRestantes));
+                }
             }
 
-            if (temposDoDia[i].Item1 == "livre")
+            if (periodoFimMinutos != 0)
             {
-                int minutosLivreRestantes = (int)(minutos - periodoInicioMinutos);
-                temposDoDia.RemoveRange(0, i + 1);
-                temposDoDia.Insert(0, ("livre", minutosLivreRestantes));
-                temposDoDia.Insert(0, ((string, int))("ocupado", periodoInicioMinutos));
-            }
-            else
-            {
-                int minutosOcupadosRestantes = (int)(minutos - periodoInicioMinutos);
-                temposDoDia.RemoveRange(0, i + 1);
-                temposDoDia.Insert(0, ((string, int))("ocupado", periodoInicioMinutos + minutosOcupadosRestantes));
-            }
+                var meiaNoiteMinutos = 1440;
+                minutos = 0;
+                i = temposDoDia.Count;
+                while (meiaNoiteMinutos - periodoFimMinutos >= minutos && i > 0)
+                {
+                    i--;
+                    minutos += temposDoDia[i].Item2;
+                }
 
-
-            var meiaNoiteMinutos = 1440;
-            minutos = 0;
-            i = temposDoDia.Count;
-            while (meiaNoiteMinutos - periodoFimMinutos >= minutos && i > 0)
-            {
-                i--;
-                minutos += temposDoDia[i].Item2;
+                if (temposDoDia[i].Item1 == "livre")
+                {
+                    int minutosLivreRestantes = (int)(minutos - temposDoDia[i].Item2);
+                    temposDoDia.RemoveRange(i, temposDoDia.Count - i);
+                    temposDoDia.Add(((string, int))("livre", minutos - (meiaNoiteMinutos - periodoFimMinutos)));
+                    temposDoDia.Add(((string, int))("ocupado", meiaNoiteMinutos - periodoFimMinutos));
+                }
+                else
+                {
+                    temposDoDia.RemoveRange(i, temposDoDia.Count - i);
+                    temposDoDia.Add(((string, int))("ocupado", minutos));
+                }
             }
-
-            if (temposDoDia[i].Item1 == "livre")
-            {
-                int minutosLivreRestantes = (int)(minutos - temposDoDia[i].Item2);
-                temposDoDia.RemoveRange(i, temposDoDia.Count - i);
-                temposDoDia.Add(((string, int))("livre", minutos - (meiaNoiteMinutos - periodoFimMinutos)));
-                temposDoDia.Add(((string, int))("ocupado", meiaNoiteMinutos - periodoFimMinutos));
-            }
-            else
-            {
-                temposDoDia.RemoveRange(i, temposDoDia.Count - i);
-                temposDoDia.Add(((string, int))("ocupado", minutos));
-            }
-
             return temposDoDia;
         }
     }

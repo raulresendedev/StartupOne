@@ -91,8 +91,8 @@ namespace StartupOne.Controllers
             {
                 try
                 {
-                    _eventosPendentesService.EncontrarHorarios(idUsuario);
-                    return Ok(idUsuario);
+                    string result = _eventosPendentesService.EncontrarHorarios(idUsuario);
+                    return Ok(result);
                 }
                 catch (Exception ex)
                 {
