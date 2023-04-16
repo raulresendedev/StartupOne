@@ -12,13 +12,54 @@ namespace StartupOne.Service
         private readonly EventosMarcadosRepository _eventosMarcadosRepository = new();
         DateTime dataAtual = DateTime.Now.Date;
 
+        public void ValidarEventoPendente(EventosPendentes eventoPendente)
+        {
+            if (eventoPendente.Prioridade == null)
+                throw new Exception("Campo Prioridade é obrigatório");
+
+            if (eventoPendente.PeriodoInicio.Year == 1)
+                throw new Exception("Campo periodo início é obrigatório");
+
+            if (eventoPendente.PeriodoFim.Year == 1)
+                throw new Exception("Campo periodo fim é obrigatório");
+
+            if (eventoPendente.Prioridade > 2 || eventoPendente.Prioridade < 0)
+                throw new Exception("Campo Prioridade inválido");
+
+            if (eventoPendente.TempoEstimado < 5)
+                throw new Exception("Campo de tempo estimado deve ter o mínimo de 5");
+
+            if (eventoPendente.TempoEstimado > 1440)
+                throw new Exception("Campo de tempo estimado deve ter o máximo de 1440");
+
+            if (eventoPendente.PeriodoInicio == eventoPendente.PeriodoFim)
+                throw new Exception("Periodo fim e início não podem ser iguais.");
+
+            if (eventoPendente.PeriodoFim < eventoPendente.PeriodoInicio)
+                throw new Exception("Periodo fim não pode ser menor do que periodo início.");
+
+            if (eventoPendente.PeriodoInicio.Minute % 5 != 0 || eventoPendente.PeriodoFim.Minute % 5 != 0)
+                throw new Exception("Horario inválido.");
+
+            if (eventoPendente.TempoEstimado % 5 != 0 || eventoPendente.TempoEstimado % 5 != 0)
+                throw new Exception("O tempo estimado deve ser múltiplo de 5");
+
+            if (eventoPendente.Status != true)
+                eventoPendente.Status = true;
+
+        }
+
         public void CadastrarEvento(EventosPendentes evento)
         {
+            ValidarEventoPendente(evento);
+
             _eventosPendentesRepository.Adicionar(evento);
         }
 
         public void AtualizarEvento(EventosPendentes evento)
         {
+            ValidarEventoPendente(evento);
+
             _eventosPendentesRepository.Atualizar(evento);
         }
 

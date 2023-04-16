@@ -13,8 +13,7 @@ namespace StartupOne.Models
         public virtual Usuario? Usuario { get; set; }
         [Required]
         public string Nome { get; set; }
-        [Required]
-        public int Prioridade { get; set; }
+        public int? Prioridade { get; set; }
         [Required]
         public int TempoEstimado { get; set; }
         [Required]
@@ -24,8 +23,16 @@ namespace StartupOne.Models
         public int? Categoria { get; set; }
         public bool Status { get; set; }
 
-        public EventosPendentes(int idEventoPendente, int idUsuario, string nome, int? categoria, int prioridade, bool status, int tempoEstimado, DateTime periodoInicio, DateTime periodoFim)
+        public EventosPendentes(int idEventoPendente, int idUsuario, string nome, int? categoria, int? prioridade, bool status, int tempoEstimado, DateTime periodoInicio, DateTime periodoFim)
         {
+            if(periodoInicio.Year != 1)
+               periodoInicio = new DateTime(0002, 1, 1, periodoInicio.Hour, periodoInicio.Minute, 0);
+
+
+            if (periodoFim.Year != 1)
+                periodoFim = new DateTime(0002, 1, 1, periodoFim.Hour, periodoFim.Minute, 0);
+
+
             IdEventoPendente = idEventoPendente;
             IdUsuario = idUsuario;
             Nome = nome;

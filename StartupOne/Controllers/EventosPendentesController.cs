@@ -60,7 +60,7 @@ namespace StartupOne.Controllers
                 try
                 {
                     _eventosPendentesService.DeletarEvento(idEvento);
-                    return Ok();
+                    return Ok("Evento deletado com sucesso!");
                 }
                 catch (Exception ex)
                 {
