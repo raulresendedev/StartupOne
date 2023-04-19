@@ -20,7 +20,7 @@ namespace StartupOne.Service
                 throw new Exception("Data fim não pode ser menor do que a data início.");
 
             if(eventoMarcado.Inicio.Minute % 5 != 0 || eventoMarcado.Fim.Minute % 5 != 0)
-                throw new Exception("Horario inválido.");
+                throw new Exception("Os horários de início e fim devem ser múltiplos de 5.");
 
             if (_eventosRepository.ConsultarEventosConflitantes(eventoMarcado))
                 throw new Exception("Já existe evento neste periodo.");

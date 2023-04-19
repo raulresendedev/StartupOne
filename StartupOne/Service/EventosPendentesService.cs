@@ -38,8 +38,11 @@ namespace StartupOne.Service
             if (eventoPendente.PeriodoFim < eventoPendente.PeriodoInicio)
                 throw new Exception("Periodo fim não pode ser menor do que periodo início.");
 
+            if ((eventoPendente.PeriodoFim.TimeOfDay.TotalMinutes - eventoPendente.PeriodoInicio.TimeOfDay.TotalMinutes) * 1 < eventoPendente.TempoEstimado)
+                throw new Exception("Tempo estimado não pode ser maior que o período");
+
             if (eventoPendente.PeriodoInicio.Minute % 5 != 0 || eventoPendente.PeriodoFim.Minute % 5 != 0)
-                throw new Exception("Horario inválido.");
+                throw new Exception("Os horários de início e fim devem ser múltiplos de 5.");
 
             if (eventoPendente.TempoEstimado % 5 != 0 || eventoPendente.TempoEstimado % 5 != 0)
                 throw new Exception("O tempo estimado deve ser múltiplo de 5");
