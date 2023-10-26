@@ -1,19 +1,18 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using StartupOne.Models;
+using StartupOne.Dto.Usuario;
 using StartupOne.Service;
 using StartupOne.Utils;
 
 namespace StartupOne.Controllers
 {
-    //https://localhost:7148/api/Usuario/cadastrar
+    //https://localhost:7148/api/Usuario
     [Route("api/[controller]")]
     public class UsuarioController : Controller
     {
         private UsuarioService _usuarioService = new UsuarioService();
 
         [HttpPost("cadastrar")]
-        [ValidateModel]
-        public IActionResult Index([FromBody] Usuario usuario)
+        public IActionResult Index([FromBody] CadastrarUsuarioDto usuario)
         {
             try
             {
