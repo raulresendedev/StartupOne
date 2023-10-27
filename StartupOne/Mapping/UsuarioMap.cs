@@ -16,7 +16,7 @@ namespace StartupOne.Mapping
 
             builder.Property(u => u.IdUsuario)
                 .HasColumnName("CD_USUARIO");
-            builder.Property(u => u.Login)
+            builder.Property(u => u.Nome)
                 .IsRequired()
                 .HasColumnName("NM_USUARIO");
             builder.Property(u => u.Email).IsRequired()

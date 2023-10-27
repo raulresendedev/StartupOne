@@ -8,7 +8,7 @@ namespace StartupOne.Models
     {
         public int IdUsuario { get; set; }
         [Required]
-        public string Login { get; set; }
+        public string Nome { get; set; }
         [Required]
         public string Email { get; set;}
         [Required]
@@ -16,10 +16,10 @@ namespace StartupOne.Models
         public ICollection<EventosMarcados>? EventosMarcados { get; set; } = new List<EventosMarcados>();
         public ICollection<EventosPendentes>? EventosPendentes { get; set; } = new List<EventosPendentes>();
 
-        public Usuario(int idUsuario, string login, string email, string password)
+        public Usuario(int idUsuario, string nome, string email, string password)
         {
             IdUsuario = idUsuario;
-            Login = login;
+            Nome = nome;
             Email = email;
             Password = CriptografarSenha(password);
         }
@@ -40,6 +40,15 @@ namespace StartupOne.Models
             }
 
             return stringBuilder.ToString();
+        }
+
+        public bool ValidarSenha(string senha)
+        {
+            string senhaCriptografada = CriptografarSenha(CriptografarSenha(senha));
+
+            if(this.Password.Equals(senhaCriptografada)) return true;
+
+            return false;
         }
     }
 }
