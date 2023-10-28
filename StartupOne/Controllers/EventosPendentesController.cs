@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using StartupOne.Models;
 using StartupOne.Service;
 using StartupOne.Utils;
@@ -12,6 +13,7 @@ namespace StartupOne.Controllers
 
         [HttpPost("cadastrar")]
         [ValidateModel]
+        [Authorize]
         public IActionResult CadastrarEvento([FromBody] EventosPendentes evento)
         {
             try
@@ -26,6 +28,7 @@ namespace StartupOne.Controllers
         }
 
         [HttpGet("buscar-todos-por-usuario/{idUsuario}")]
+        [Authorize]
         public IActionResult ObterTodosEventos([FromRoute] int idUsuario)
         {
             try
@@ -40,6 +43,7 @@ namespace StartupOne.Controllers
         }
 
         [HttpGet("buscar-evento/{idUsuario}")]
+        [Authorize]
         public IActionResult ObterEvento([FromRoute] int idUsuario)
         {
             try
@@ -54,6 +58,7 @@ namespace StartupOne.Controllers
         }
 
         [HttpDelete("deletar-evento/{idEvento}")]
+        [Authorize]
         public IActionResult DeletarEvento([FromRoute] int idEvento)
         {
             {
@@ -70,6 +75,7 @@ namespace StartupOne.Controllers
         }
 
         [HttpPatch("atualizar-evento")]
+        [Authorize]
         public IActionResult AtualizarEvento([FromBody] EventosPendentes evento)
         {
             {
@@ -86,6 +92,7 @@ namespace StartupOne.Controllers
         }
 
         [HttpGet("encontrar-horarios/{idUsuario}")]
+        [Authorize]
         public IActionResult EncontrarHorarios([FromRoute] int idUsuario)
         {
             {

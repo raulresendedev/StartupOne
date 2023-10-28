@@ -4,6 +4,7 @@ using Google.Apis.Util.Store;
 using Microsoft.AspNetCore.Mvc;
 using StartupOne.Service;
 using Google.Apis.Calendar.v3;
+using Microsoft.AspNetCore.Authorization;
 
 namespace StartupOne.Controllers
 {
@@ -13,6 +14,7 @@ namespace StartupOne.Controllers
         private GoogleApiService _googleApiService = new GoogleApiService();
 
         [HttpGet("events/{user}")]
+        [Authorize]
         public IActionResult GetEvents([FromRoute] string user)
         {
             try
@@ -27,6 +29,7 @@ namespace StartupOne.Controllers
         }
 
         [HttpPost("auth/{user}")]
+        [Authorize]
         public IActionResult Authentic([FromRoute] string user)
         {
             try

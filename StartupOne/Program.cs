@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using StartupOne.Mapping;
 using StartupOne.Repository;
 using StartupOne.Service;
 using System.Text;
@@ -13,6 +11,7 @@ builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddScoped<UsuarioService>();
 builder.Services.AddScoped<UsuarioRepository>();
+builder.Services.AddScoped<TokenService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

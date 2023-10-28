@@ -1,12 +1,7 @@
-﻿using Microsoft.IdentityModel.Tokens;
-using Oracle.ManagedDataAccess.Client;
+﻿
 using StartupOne.Dto.Usuario;
-using StartupOne.Exceptions;
 using StartupOne.Models;
 using StartupOne.Repository;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace StartupOne.Service
@@ -14,41 +9,12 @@ namespace StartupOne.Service
     public class UsuarioService
     {
         private readonly UsuarioRepository _usuarioRepository;
-        private readonly IConfiguration _configuration;
+        private readonly TokenService _tokenService;
 
-        public UsuarioService(IConfiguration configuration, UsuarioRepository usuarioRepository)
+        public UsuarioService(UsuarioRepository usuarioRepository, TokenService tokenService)
         {
             _usuarioRepository = usuarioRepository;
-            _configuration = configuration;
-        }
-
-
-        public UsuarioService(IConfiguration configuration)
-        {
-            _configuration = configuration;
-        }
-
-        private string GenerateJwtToken(string email, int userId)
-        {
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Key"]));
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-
-            var claims = new[]
-            {
-            new Claim(JwtRegisteredClaimNames.Sub, email),
-            new Claim("id", userId.ToString()),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-    };
-
-            var token = new JwtSecurityToken(
-                issuer: _configuration["JWT:Issuer"],
-                audience: _configuration["JWT:Issuer"],
-                claims: claims,
-                expires: DateTime.Now.AddHours(1), 
-                signingCredentials: credentials
-            );
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            _tokenService = tokenService;
         }
 
 
@@ -94,9 +60,9 @@ namespace StartupOne.Service
             ValidarUsuario(usuarioDto);
             Usuario usuario = new Usuario(0, usuarioDto.Nome, usuarioDto.Email, usuarioDto.Password);
 
-            var token = GenerateJwtToken(usuario.Email, usuario.IdUsuario);
-
             _usuarioRepository.Adicionar(usuario);
+
+            var token = _tokenService.GenerateJwtToken(usuario.Email, usuario.IdUsuario);
 
             return new UsuarioLogadoDto
             {
@@ -117,7 +83,7 @@ namespace StartupOne.Service
 
             if (!usuario.ValidarSenha(usuarioDto.Password)) throw new Exception("Senha incorreta");
 
-            var token = GenerateJwtToken(usuario.Email, usuario.IdUsuario);
+            var token = _tokenService.GenerateJwtToken(usuario.Email, usuario.IdUsuario);
 
             return new UsuarioLogadoDto
             {
