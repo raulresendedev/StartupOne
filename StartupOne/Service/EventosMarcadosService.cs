@@ -1,6 +1,8 @@
-﻿using StartupOne.Mapping;
+﻿using StartupOne.Dto.EventoMarcado;
+using StartupOne.Mapping;
 using StartupOne.Models;
 using StartupOne.Repository;
+using System.Collections.Generic;
 
 namespace StartupOne.Service
 {
@@ -55,9 +57,21 @@ namespace StartupOne.Service
             return _eventosRepository.Obter(idEvento);
         }
 
-        public ICollection<EventosMarcados> ObterTodosEventos(int idUsuario)
+        public IEnumerable<EventoMarcadoDto> ObterTodosEventos(int idUsuario)
         {
-            return _eventosRepository.ObterEventosMarcadosDoUsuario(idUsuario);
+            ICollection <EventosMarcados> eventos = _eventosRepository.ObterEventosMarcadosDoUsuario(idUsuario);
+
+            IEnumerable<EventoMarcadoDto> eventosDtos = eventos.Select(e => new EventoMarcadoDto
+            {
+                IdEventoMarcado = e.IdEventoMarcado,
+                Inicio = e.Inicio.ToString("yyyy-MM-dd'T'HH:mm:ssZ"),
+                Fim = e.Fim.ToString("yyyy-MM-dd'T'HH:mm:ssZ"),
+                Nome = e.Nome,
+                Status = e.Status,
+                Categoria = e.Categoria
+            });
+
+            return eventosDtos;
         }
 
     }

@@ -17,7 +17,6 @@ namespace StartupOne.Service
             _tokenService = tokenService;
         }
 
-
         public void ValidarUsuario(CadastrarUsuarioDto usuarioDto)
         {
             string emailPattern = @"^[\w\.-]+@[\w\.-]+\.\w+$";
