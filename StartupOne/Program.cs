@@ -11,7 +11,13 @@ builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddScoped<UsuarioService>();
 builder.Services.AddScoped<UsuarioRepository>();
+
+builder.Services.AddScoped<EventoMarcadoService>();
+builder.Services.AddScoped<EventoMarcadoRepository>();
+
 builder.Services.AddScoped<TokenService>();
+
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

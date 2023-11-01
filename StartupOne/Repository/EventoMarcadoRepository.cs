@@ -7,19 +7,19 @@ using System.Data.Entity;
 
 namespace StartupOne.Repository
 {
-    public class EventosMarcadosRepository : BaseRepository<EventosMarcados>
+    public class EventoMarcadoRepository : BaseRepository<EventoMarcado>
     {
-        public ICollection<EventosMarcados> ObterEventosMarcadosDoUsuario(int idUsuario)
+        public ICollection<EventoMarcado> ObterEventosMarcadosDoUsuario(int idUsuario)
         {
             
-            return _dbContext.Set<EventosMarcados>()
+            return _dbContext.Set<EventoMarcado>()
                 .Where(e => e.IdUsuario == idUsuario)
                 .ToList();
         }
 
-        public bool ConsultarEventosConflitantes(EventosMarcados evento)
+        public bool ConsultarEventosConflitantes(EventoMarcado evento)
         {
-            var conflitantes = _dbContext.Set<EventosMarcados>()
+            var conflitantes = _dbContext.Set<EventoMarcado>()
                 .Where(x => x.IdUsuario == evento.IdUsuario &&
                             (evento.Inicio >= x.Inicio && evento.Inicio <= x.Fim && x.IdEventoMarcado != evento.IdEventoMarcado) ||
                              (evento.Fim >= x.Inicio && evento.Fim <= x.Fim && x.IdEventoMarcado != evento.IdEventoMarcado))

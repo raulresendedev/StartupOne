@@ -1,9 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.IdentityModel.Tokens;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace StartupOne.Models
 {
-    public class EventosMarcados
+    public class EventoMarcado
     {
         public int IdEventoMarcado { get; set; }
         [Required]
@@ -22,14 +23,11 @@ namespace StartupOne.Models
         public int? Categoria { get; set; }
 
 
-        public EventosMarcados(int idEventoMarcado, int idUsuario, string nome, DateTime inicio, DateTime fim, int? recorrente, int? categoria, bool status)
+        public EventoMarcado(int idEventoMarcado, int idUsuario, string nome, DateTime inicio, DateTime fim, int? recorrente, int? categoria, bool status)
         {
-            if (nome == null)
-                nome = "Novo Evento";
-
+            Nome = string.IsNullOrWhiteSpace(nome) ? "Novo Evento" : nome ;
             IdEventoMarcado = idEventoMarcado;
             IdUsuario = idUsuario;
-            Nome = nome;
             Inicio = inicio;
             Fim = fim;
             Recorrente = recorrente;

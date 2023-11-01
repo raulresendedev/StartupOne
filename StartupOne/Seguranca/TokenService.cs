@@ -8,10 +8,12 @@ namespace StartupOne.Service
     public class TokenService
     {
         private readonly IConfiguration _configuration;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public TokenService(IConfiguration configuration)
+        public TokenService(IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
             _configuration = configuration;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public string GenerateJwtToken(string email, int userId)
@@ -35,6 +37,31 @@ namespace StartupOne.Service
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public int GetUserIdFromToken()
+        {
+            var authHeader = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].FirstOrDefault();
+
+            var token = authHeader.Substring("Bearer ".Length).Trim();
+
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Key"]));
+            var tokenHandler = new JwtSecurityTokenHandler();
+
+            var validations = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = securityKey,
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidIssuer = _configuration["JWT:Issuer"],
+                ValidAudience = _configuration["JWT:Issuer"]
+            };
+
+            var claims = tokenHandler.ValidateToken(token, validations, out var tokenSecure);
+
+            return int.Parse(claims.FindFirst("id").Value);
+            
         }
     }
 }

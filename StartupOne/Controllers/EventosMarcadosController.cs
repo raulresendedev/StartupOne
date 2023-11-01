@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using StartupOne.Dto.EventoMarcado;
 using StartupOne.Models;
 using StartupOne.Service;
-using StartupOne.Utils;
 
 namespace StartupOne.Controllers
 {
@@ -10,12 +10,16 @@ namespace StartupOne.Controllers
     [Route("api/[controller]")]
     public class EventosMarcadosController : Controller
     {
-        private EventosMarcadosService _eventosService = new EventosMarcadosService();
+        private EventoMarcadoService _eventosService;
+
+        public EventosMarcadosController(EventoMarcadoService eventosMarcadosService)
+        {
+            _eventosService = eventosMarcadosService;
+        }
 
         [HttpPost("cadastrar")]
-        [ValidateModel]
         [Authorize]
-        public IActionResult CadastrarEvento([FromBody] EventosMarcados evento)
+        public IActionResult CadastrarEvento([FromBody] EventoMarcadoDto evento)
         {
             try
             {
@@ -77,7 +81,7 @@ namespace StartupOne.Controllers
 
         [HttpPatch("atualizar-evento")]
         [Authorize]
-        public IActionResult AtualizarEvento([FromBody] EventosMarcados evento)
+        public IActionResult AtualizarEvento([FromBody] EventoMarcado evento)
         {
             {
                 try

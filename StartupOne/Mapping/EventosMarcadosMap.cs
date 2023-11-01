@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace StartupOne.Mapping
 {
-    public class EventosMarcadosMap : IEntityTypeConfiguration<EventosMarcados>
+    public class EventosMarcadosMap : IEntityTypeConfiguration<EventoMarcado>
     {
-        public void Configure(EntityTypeBuilder<EventosMarcados> builder)
+        public void Configure(EntityTypeBuilder<EventoMarcado> builder)
         {
             builder.ToTable("T_STO_EVENTOS_MARCADOS");
 

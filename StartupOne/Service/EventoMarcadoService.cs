@@ -1,25 +1,31 @@
 ﻿using StartupOne.Dto.EventoMarcado;
-using StartupOne.Mapping;
 using StartupOne.Models;
 using StartupOne.Repository;
-using System.Collections.Generic;
 
 namespace StartupOne.Service
 {
-    public class EventosMarcadosService
+    public class EventoMarcadoService
     {
-        private readonly EventosMarcadosRepository _eventosRepository = new();
+        private readonly EventoMarcadoRepository _eventosRepository;
 
-        public void ValidarEventoMarcado(EventosMarcados eventoMarcado)
+        private readonly TokenService _tokenService;
+
+        public EventoMarcadoService(EventoMarcadoRepository eventosMarcadosRepository, TokenService tokenService)
+        {
+            _eventosRepository = eventosMarcadosRepository;
+            _tokenService = tokenService;
+        }
+
+        public void ValidarEventoMarcado(EventoMarcado eventoMarcado)
         {
             if (eventoMarcado.Fim.DayOfYear != eventoMarcado.Inicio.DayOfYear)
                 throw new Exception("Data inicio e fim devem ser no mesmo dia.");
 
             if (eventoMarcado.Fim == eventoMarcado.Inicio)
-                throw new Exception("Data fim e início não podem ser iguais.");
+                throw new Exception("Hora fim e início não podem ser iguais.");
 
             if (eventoMarcado.Fim < eventoMarcado.Inicio)
-                throw new Exception("Data fim não pode ser menor do que a data início.");
+                throw new Exception("Hora fim não pode ser menor do que a data início.");
 
             if(eventoMarcado.Inicio.Minute % 5 != 0 || eventoMarcado.Fim.Minute % 5 != 0)
                 throw new Exception("Os horários de início e fim devem ser múltiplos de 5.");
@@ -32,14 +38,36 @@ namespace StartupOne.Service
 
         }
 
-        public void CadastrarEvento(EventosMarcados evento)
+        public EventoMarcadoDto CadastrarEvento(EventoMarcadoDto eventoDto)
         {
+
+            EventoMarcado evento = new EventoMarcado(
+                idEventoMarcado: 0,
+                idUsuario: _tokenService.GetUserIdFromToken(),
+                nome: eventoDto.Nome,
+                inicio: eventoDto.Inicio,
+                fim: eventoDto.Fim,
+                categoria: eventoDto.Categoria,
+                recorrente: null,
+                status: eventoDto.Status
+            );
+
             ValidarEventoMarcado(evento);
             
             _eventosRepository.Adicionar(evento);
+
+            return new EventoMarcadoDto
+            {
+                IdEventoMarcado = evento.IdEventoMarcado,
+                Inicio = evento.Inicio,
+                Fim = evento.Fim,
+                Nome = evento.Nome,
+                Status = evento.Status,
+                Categoria = evento.Categoria
+            };
         }
 
-        public void AtualizarEvento(EventosMarcados evento)
+        public void AtualizarEvento(EventoMarcado evento)
         {
             ValidarEventoMarcado(evento);
 
@@ -52,20 +80,20 @@ namespace StartupOne.Service
             _eventosRepository.Remover(evento);
         }
 
-        public EventosMarcados ObterEvento(int idEvento)
+        public EventoMarcado ObterEvento(int idEvento)
         {
             return _eventosRepository.Obter(idEvento);
         }
 
         public IEnumerable<EventoMarcadoDto> ObterTodosEventos(int idUsuario)
         {
-            ICollection <EventosMarcados> eventos = _eventosRepository.ObterEventosMarcadosDoUsuario(idUsuario);
+            ICollection <EventoMarcado> eventos = _eventosRepository.ObterEventosMarcadosDoUsuario(idUsuario);
 
             IEnumerable<EventoMarcadoDto> eventosDtos = eventos.Select(e => new EventoMarcadoDto
             {
                 IdEventoMarcado = e.IdEventoMarcado,
-                Inicio = e.Inicio.ToString("yyyy-MM-dd'T'HH:mm:ssZ"),
-                Fim = e.Fim.ToString("yyyy-MM-dd'T'HH:mm:ssZ"),
+                Inicio = e.Inicio,
+                Fim = e.Fim,
                 Nome = e.Nome,
                 Status = e.Status,
                 Categoria = e.Categoria

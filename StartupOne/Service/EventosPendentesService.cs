@@ -9,7 +9,7 @@ namespace StartupOne.Service
     public class EventosPendentesService
     {
         private readonly EventosPendentesRepository _eventosPendentesRepository = new();
-        private readonly EventosMarcadosRepository _eventosMarcadosRepository = new();
+        private readonly EventoMarcadoRepository _eventosMarcadosRepository = new();
         DateTime dataAtual = DateTime.Now.Date;
 
         public void ValidarEventoPendente(EventosPendentes eventoPendente)
@@ -41,8 +41,8 @@ namespace StartupOne.Service
             if ((eventoPendente.PeriodoFim.TimeOfDay.TotalMinutes - eventoPendente.PeriodoInicio.TimeOfDay.TotalMinutes) * 1 < eventoPendente.TempoEstimado)
                 throw new Exception("Tempo estimado não pode ser maior que o período");
 
-            if (eventoPendente.PeriodoInicio.Minute % 5 != 0 || eventoPendente.PeriodoFim.Minute % 5 != 0)
-                throw new Exception("Os horários de início e fim devem ser múltiplos de 5.");
+            //if (eventoPendente.PeriodoInicio.Minute % 5 != 0 || eventoPendente.PeriodoFim.Minute % 5 != 0)
+            //    throw new Exception("Os horários de início e fim devem ser múltiplos de 5.");
 
             if (eventoPendente.TempoEstimado % 5 != 0 || eventoPendente.TempoEstimado % 5 != 0)
                 throw new Exception("O tempo estimado deve ser múltiplo de 5");
@@ -87,7 +87,7 @@ namespace StartupOne.Service
             bool todosEventosAlocados = false;
             int i = 0;
             List<(string, int)>[] lists = new List<(string, int)>[30]; //DEBUGAR APENAS  
-            ICollection<EventosMarcados> eventosMarcadosNoDia = new List<EventosMarcados>();
+            ICollection<EventoMarcado> eventosMarcadosNoDia = new List<EventoMarcado>();
             List<(string, int)> temposDoDia = new List<(string, int)>();
             ICollection<EventosPendentes> eventosPendentes = _eventosPendentesRepository
                                                                 .ObterEventosPendentesDoUsuario(idUsuario)
@@ -173,7 +173,7 @@ namespace StartupOne.Service
 
             _eventosPendentesRepository.Atualizar(eventoPendente);
 
-            EventosMarcados alocarEvento = new EventosMarcados(
+            EventoMarcado alocarEvento = new EventoMarcado(
                     0,
                     eventoPendente.IdUsuario,
                     eventoPendente.Nome,
@@ -186,7 +186,7 @@ namespace StartupOne.Service
 
             _eventosMarcadosRepository.Adicionar(alocarEvento);
         }
-        public List<(string, int)> ObterTemposDoDia(ICollection<EventosMarcados> eventosMarcados)
+        public List<(string, int)> ObterTemposDoDia(ICollection<EventoMarcado> eventosMarcados)
         {
             List<(string, int)> listaDeTuplas = new List<(string, int)>();
 

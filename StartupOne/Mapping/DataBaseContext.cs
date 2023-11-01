@@ -26,7 +26,7 @@ namespace StartupOne.Mapping
         }
 
         public DbSet<Usuario> Usuarios { get; set; }
-        public DbSet<EventosMarcados> EventosMarcados { get; set; }
+        public DbSet<EventoMarcado> EventosMarcados { get; set; }
 
         public DbSet<EventosPendentes> EventosPendentes { get; set; }
 
