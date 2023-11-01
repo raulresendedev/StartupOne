@@ -92,6 +92,11 @@ namespace StartupOne.Service
         public void DeletarEvento(int idEvento)
         {
             var evento = _eventosRepository.Obter(idEvento);
+
+            if (evento == null) throw new Exception("O evento não foi encontrado");
+
+            if (evento.IdUsuario != _tokenService.GetUserIdFromToken()) throw new Exception("Você não tem permissão para excluir este evento.");
+
             _eventosRepository.Remover(evento);
         }
 

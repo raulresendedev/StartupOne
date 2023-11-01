@@ -23,8 +23,7 @@ namespace StartupOne.Controllers
         {
             try
             {
-                _eventosService.CadastrarEvento(evento);
-                return Ok(evento);
+                return Ok(_eventosService.CadastrarEvento(evento));
             }
             catch (Exception ex)
             {
