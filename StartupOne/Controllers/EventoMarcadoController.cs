@@ -8,11 +8,11 @@ namespace StartupOne.Controllers
 {
 
     [Route("api/[controller]")]
-    public class EventosMarcadosController : Controller
+    public class EventoMarcadoController : Controller
     {
         private EventoMarcadoService _eventosService;
 
-        public EventosMarcadosController(EventoMarcadoService eventosMarcadosService)
+        public EventoMarcadoController(EventoMarcadoService eventosMarcadosService)
         {
             _eventosService = eventosMarcadosService;
         }
@@ -81,13 +81,12 @@ namespace StartupOne.Controllers
 
         [HttpPatch("atualizar-evento")]
         [Authorize]
-        public IActionResult AtualizarEvento([FromBody] EventoMarcado evento)
+        public IActionResult AtualizarEvento([FromBody] EventoMarcadoDto evento)
         {
             {
                 try
                 {
-                    _eventosService.AtualizarEvento(evento);
-                    return Ok(evento);
+                    return Ok(_eventosService.AtualizarEvento(evento));
                 }
                 catch (Exception ex)
                 {
