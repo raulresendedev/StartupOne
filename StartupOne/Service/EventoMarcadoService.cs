@@ -36,11 +36,11 @@ namespace StartupOne.Service
             //if(eventoMarcado.Inicio.Minute % 5 != 0 || eventoMarcado.Fim.Minute % 5 != 0)
             //    throw new Exception("Os horários de início e fim devem ser múltiplos de 5.");
 
-            if (_eventosRepository.ConsultarEventosConflitantes(eventoMarcado))
+            if (_eventosRepository.JaExisteEventoNoPeriodo(eventoMarcado))
                 throw new Exception("Já existe evento neste periodo.");
 
-            if(eventoMarcado.Status != true)
-                eventoMarcado.Status = true;
+            if(eventoMarcado.Confirmado != true)
+                eventoMarcado.Concluido = true;
 
         }
 
@@ -55,7 +55,8 @@ namespace StartupOne.Service
                 fim: eventoDto.Fim,
                 categoria: eventoDto.Categoria,
                 recorrente: null,
-                status: eventoDto.Status
+                confirmado: eventoDto.Confirmado,
+                concluido: eventoDto.Concluido
             );
 
             ValidarEventoMarcado(evento);
@@ -68,7 +69,8 @@ namespace StartupOne.Service
                 Inicio = evento.Inicio,
                 Fim = evento.Fim,
                 Nome = evento.Nome,
-                Status = evento.Status,
+                Confirmado = evento.Confirmado,
+                Concluido = evento.Concluido,
                 Categoria = evento.Categoria
             };
         }
@@ -105,9 +107,17 @@ namespace StartupOne.Service
             return _eventosRepository.Obter(idEvento);
         }
 
-        public IEnumerable<EventoMarcadoDto> ObterTodosEventos(int idUsuario)
+        public IEnumerable<EventoMarcadoDto> ObterTodosEventos(int idUsuario, string filtro)
         {
-            ICollection <EventoMarcado> eventos = _eventosRepository.ObterEventosMarcadosDoUsuario(idUsuario);
+            ICollection<EventoMarcado> eventos;
+
+            if (filtro == "futuros") eventos = _eventosRepository.ObterEventosFuturosDoUsuario(idUsuario);
+
+            else if(filtro == "atrasados") eventos = _eventosRepository.ObterEventosAtrasadosDoUsuario(idUsuario);
+
+            else if (filtro == "concluidos") eventos = _eventosRepository.ObterEventosConcluidosDoUsuario(idUsuario);
+
+            else eventos = _eventosRepository.ObterTodosEventosDoUsuario(idUsuario);
 
             IEnumerable<EventoMarcadoDto> eventosDtos = eventos.Select(e => new EventoMarcadoDto
             {
@@ -115,7 +125,8 @@ namespace StartupOne.Service
                 Inicio = e.Inicio,
                 Fim = e.Fim,
                 Nome = e.Nome,
-                Status = e.Status,
+                Confirmado = e.Confirmado,
+                Concluido = e.Concluido,
                 Categoria = e.Categoria
             });
 

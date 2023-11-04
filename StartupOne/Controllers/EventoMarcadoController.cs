@@ -33,11 +33,11 @@ namespace StartupOne.Controllers
 
         [HttpGet("buscar-todos-por-usuario/{idUsuario}")]
         [Authorize]
-        public IActionResult ObterTodosEventos([FromRoute] int idUsuario)
+        public IActionResult ObterTodosEventos([FromRoute] int idUsuario, [FromQuery] string filtro)
         {
             try
             {
-                var eventosUsuario = _eventosService.ObterTodosEventos(idUsuario);
+                var eventosUsuario = _eventosService.ObterTodosEventos(idUsuario, filtro);
                 return Ok(eventosUsuario);
             }
             catch (Exception ex)

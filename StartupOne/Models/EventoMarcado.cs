@@ -18,12 +18,12 @@ namespace StartupOne.Models
         [Required]
         public DateTime Fim { get; set; }
         [Required]
-        public bool Status { get; set; }
+        public bool Concluido { get; set; }
+        public bool Confirmado { get; set; }
         public int? Recorrente { get; set; }
         public int? Categoria { get; set; }
 
-
-        public EventoMarcado(int idEventoMarcado, int idUsuario, string nome, DateTime inicio, DateTime fim, int? recorrente, int? categoria, bool status)
+        public EventoMarcado(int idEventoMarcado, int idUsuario, string nome, DateTime inicio, DateTime fim, int? recorrente, int? categoria, bool concluido, bool confirmado)
         {
             Nome = string.IsNullOrWhiteSpace(nome) ? "Novo Evento" : nome ;
             IdEventoMarcado = idEventoMarcado;
@@ -32,7 +32,8 @@ namespace StartupOne.Models
             Fim = fim;
             Recorrente = recorrente;
             Categoria = categoria;
-            Status = status;
+            Concluido = concluido;
+            Confirmado = confirmado;
         }
     }
 }
