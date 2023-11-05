@@ -108,7 +108,7 @@ namespace StartupOne.Service
 
                 foreach (var eventoPendente in eventosNaoAlocados)
                 {
-                    eventosMarcadosNoDia = _eventosMarcadosRepository.ObterEventosFuturosDoUsuario(idUsuario)
+                    eventosMarcadosNoDia = _eventosMarcadosRepository.ObterEventosPendentesDoUsuario(idUsuario)
                                                                 .Where(x => x.Inicio.DayOfYear == dataAtual.DayOfYear)
                                                                 .OrderBy(x => x.Inicio)
                                                                 .ToList();

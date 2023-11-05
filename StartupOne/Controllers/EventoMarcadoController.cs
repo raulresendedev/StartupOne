@@ -78,7 +78,7 @@ namespace StartupOne.Controllers
             }
         }
 
-        [HttpPatch("atualizar-evento")]
+        [HttpPut("atualizar-evento")]
         [Authorize]
         public IActionResult AtualizarEvento([FromBody] EventoMarcadoDto evento)
         {
@@ -86,6 +86,23 @@ namespace StartupOne.Controllers
                 try
                 {
                     return Ok(_eventosService.AtualizarEvento(evento));
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(ex.Message);
+                }
+            }
+        }
+
+        [HttpPatch("atualizar-conclusao-evento/{idEvento}")]
+        [Authorize]
+        public IActionResult AtualizarConclusaoEvento([FromRoute] int idEvento)
+        {
+            {
+                try
+                {
+                    _eventosService.AtualizarConclusaoEvento(idEvento);
+                    return Ok();
                 }
                 catch (Exception ex)
                 {

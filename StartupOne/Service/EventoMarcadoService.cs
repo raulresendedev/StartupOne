@@ -111,7 +111,7 @@ namespace StartupOne.Service
         {
             ICollection<EventoMarcado> eventos;
 
-            if (filtro == "futuros") eventos = _eventosRepository.ObterEventosFuturosDoUsuario(idUsuario);
+            if (filtro == "pendentes") eventos = _eventosRepository.ObterEventosPendentesDoUsuario(idUsuario);
 
             else if(filtro == "atrasados") eventos = _eventosRepository.ObterEventosAtrasadosDoUsuario(idUsuario);
 
@@ -133,5 +133,17 @@ namespace StartupOne.Service
             return eventosDtos;
         }
 
+        public void AtualizarConclusaoEvento(int idEvento)
+        {
+            EventoMarcado evento = _eventosRepository.Obter(idEvento);
+
+            if(evento.IdUsuario != _tokenService.GetUserIdFromToken()) throw new Exception("Você não tem permissão para alterar este evento.");
+
+            if (evento == null) throw new Exception("Evento não encontrado");
+
+            evento.Concluido = !evento.Concluido;
+
+            _eventosRepository.Atualizar(evento);
+        }
     }
 }

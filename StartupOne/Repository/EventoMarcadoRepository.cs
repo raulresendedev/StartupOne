@@ -17,10 +17,10 @@ namespace StartupOne.Repository
                 .ToList();
         }
 
-        public ICollection<EventoMarcado> ObterEventosFuturosDoUsuario(int idUsuario)
+        public ICollection<EventoMarcado> ObterEventosPendentesDoUsuario(int idUsuario)
         {
             return _dbContext.Set<EventoMarcado>()
-                .Where(e => e.IdUsuario == idUsuario && e.Inicio >= DateTime.Today)
+                .Where(e => e.IdUsuario == idUsuario && e.Inicio >= DateTime.Today && !e.Concluido)
                 .OrderBy(e => e.Inicio)
                 .ToList();
         }
