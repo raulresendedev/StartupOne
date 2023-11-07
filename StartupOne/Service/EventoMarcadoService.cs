@@ -1,6 +1,7 @@
 ﻿using StartupOne.Dto.EventoMarcado;
 using StartupOne.Models;
 using StartupOne.Repository;
+using System.Collections.Generic;
 
 namespace StartupOne.Service
 {
@@ -20,6 +21,9 @@ namespace StartupOne.Service
         {
             if(eventoMarcado == null)
                 throw new Exception("Evento não foi encontrado.");
+
+            if (eventoMarcado.Nome.Length > 30)
+                throw new Exception("Nome tem máximo de 30 caracteres");
 
             if (eventoMarcado.IdUsuario != _tokenService.GetUserIdFromToken())
                 throw new Exception("Você não tem permissão para modificar este evento.");
@@ -97,7 +101,7 @@ namespace StartupOne.Service
 
             if (evento == null) throw new Exception("O evento não foi encontrado");
 
-            if (evento.IdUsuario != _tokenService.GetUserIdFromToken()) throw new Exception("Você não tem permissão para excluir este evento.");
+            if (evento.IdUsuario != _tokenService.GetUserIdFromToken()) throw new UnauthorizedAccessException("Você não tem permissão para excluir este evento.");
 
             _eventosRepository.Remover(evento);
         }
@@ -137,13 +141,30 @@ namespace StartupOne.Service
         {
             EventoMarcado evento = _eventosRepository.Obter(idEvento);
 
-            if(evento.IdUsuario != _tokenService.GetUserIdFromToken()) throw new Exception("Você não tem permissão para alterar este evento.");
-
             if (evento == null) throw new Exception("Evento não encontrado");
+
+            if(evento.IdUsuario != _tokenService.GetUserIdFromToken()) throw new UnauthorizedAccessException("Você não tem permissão para alterar este evento.");
 
             evento.Concluido = !evento.Concluido;
 
             _eventosRepository.Atualizar(evento);
         }
+
+        public IEnumerable<EventoMarcadoDto> ObterEventoDoDia(int idUsuario, DateTime data)
+        {
+            ICollection<EventoMarcado> eventos = _eventosRepository.ObterEventoDoDia(idUsuario, data);
+
+            return eventos.Select(e => new EventoMarcadoDto
+            {
+                IdEventoMarcado = e.IdEventoMarcado,
+                Inicio = e.Inicio,
+                Fim = e.Fim,
+                Nome = e.Nome,
+                Confirmado = e.Confirmado,
+                Concluido = e.Concluido,
+                Categoria = e.Categoria
+            });
+        }
+    
     }
 }

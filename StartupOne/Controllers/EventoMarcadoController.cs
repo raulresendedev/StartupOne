@@ -61,6 +61,21 @@ namespace StartupOne.Controllers
             }
         }
 
+        [HttpGet("buscar-eventos-dia/{idUsuario}")]
+        [Authorize]
+        public IActionResult ObterEventoDoDia([FromRoute] int idUsuario, [FromQuery] DateTime data)
+        {
+            try
+            {
+                var eventosUsuario = _eventosService.ObterEventoDoDia(idUsuario, data);
+                return Ok(eventosUsuario);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpDelete("deletar-evento/{idEvento}")]
         [Authorize]
         public IActionResult DeletarEvento([FromRoute] int idEvento)

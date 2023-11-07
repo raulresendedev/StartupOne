@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Oracle.ManagedDataAccess.Client;
+using StartupOne.Dto.EventoMarcado;
 using StartupOne.Mapping;
 using StartupOne.Models;
 using System.Data.Entity;
@@ -49,6 +50,13 @@ namespace StartupOne.Repository
                                             (evento.Fim >= x.Inicio && evento.Fim <= x.Fim))).Count();
 
             return conflitantes != 0 ? true : false;
+        }
+
+        public ICollection<EventoMarcado> ObterEventoDoDia(int idUsuario, DateTime data)
+        {
+            return _dbContext.Set<EventoMarcado>()
+                                .Where(x => x.Inicio.Date == data.Date && x.IdUsuario == idUsuario)
+                                .ToList();
         }
     }
 }

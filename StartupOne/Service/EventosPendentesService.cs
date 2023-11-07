@@ -86,7 +86,7 @@ namespace StartupOne.Service
         {
             bool todosEventosAlocados = false;
             int i = 0;
-            List<(string, int)>[] lists = new List<(string, int)>[30]; //DEBUGAR APENAS  
+
             ICollection<EventoMarcado> eventosMarcadosNoDia = new List<EventoMarcado>();
             List<(string, int)> temposDoDia = new List<(string, int)>();
             ICollection<EventosPendentes> eventosPendentes = _eventosPendentesRepository
@@ -127,7 +127,6 @@ namespace StartupOne.Service
                     }
                 }
                 todosEventosAlocados = eventosPendentes.All(e => e.Status == false);
-                lists[i] = temposDoDia;
             }
             return "Ok";
         }
