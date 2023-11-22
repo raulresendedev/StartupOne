@@ -36,6 +36,17 @@ namespace StartupOne.Service
             if (string.IsNullOrWhiteSpace(usuarioDto.Nome))
                 throw new Exception("Preencha o Nome");
 
+            if (usuarioDto.Password.Length < 8 || usuarioDto.Password.Length > 12)
+                throw new Exception("A senha deve ter no mínimo 8 caracteres e no máximo 12.");
+
+            if (!usuarioDto.Password.Any(char.IsUpper))
+                throw new Exception("A senha deve conter uma letra maiúscula.");
+
+            if (!usuarioDto.Password.Any(char.IsLower))
+                throw new Exception("A senha deve conter uma letra minúscula.");
+
+            if (!usuarioDto.Password.Any(char.IsDigit))
+                throw new Exception("A senha deve conter um número.");
         }
 
         public void ValidarLoginUsuario(LoginUsuarioDto usuarioDto)
