@@ -1,4 +1,6 @@
-﻿using StartupOne.Models;
+﻿using StartupOne.Dto.EventoMarcado;
+using StartupOne.Dto.Interesses;
+using StartupOne.Models;
 using StartupOne.Repository;
 using System.Collections.Generic;
 using System.Runtime.Intrinsics.X86;
@@ -6,80 +8,122 @@ using System.Security.Cryptography;
 
 namespace StartupOne.Service
 {
-    public class EventosPendentesService
+    public class InteressesService
     {
-        private readonly EventosPendentesRepository _eventosPendentesRepository = new();
-        private readonly EventoMarcadoRepository _eventosMarcadosRepository = new();
+        private readonly InteressesRepository _interessesRepository;
+        private readonly EventoMarcadoRepository _eventosMarcadosRepository;
+
+        private readonly TokenService _tokenService;
+        public InteressesService(InteressesRepository interessesRepository, EventoMarcadoRepository eventosMarcadosRepository, TokenService tokenService)
+        {
+            _eventosMarcadosRepository = eventosMarcadosRepository;
+            _tokenService = tokenService;
+            _interessesRepository = interessesRepository;
+        }
+
         DateTime dataAtual = DateTime.Now.Date;
 
-        public void ValidarEventoPendente(EventosPendentes eventoPendente)
+        public void ValidarInteresse(Interesses interesse)
         {
-            if (eventoPendente.Prioridade == null)
+
+            if (interesse.Prioridade == null)
                 throw new Exception("Campo Prioridade é obrigatório");
 
-            if (eventoPendente.PeriodoInicio.Year == 1)
-                throw new Exception("Campo periodo início é obrigatório");
+            if (string.IsNullOrWhiteSpace(interesse.Nome))
+                throw new Exception("Campo Nome é obrigatório");
 
-            if (eventoPendente.PeriodoFim.Year == 1)
-                throw new Exception("Campo periodo fim é obrigatório");
-
-            if (eventoPendente.Prioridade > 2 || eventoPendente.Prioridade < 0)
+            if (interesse.Prioridade > 2 || interesse.Prioridade < 0)
                 throw new Exception("Campo Prioridade inválido");
 
-            if (eventoPendente.TempoEstimado < 5)
+            if (interesse.TempoEstimado.TimeOfDay.TotalMinutes < 5)
                 throw new Exception("Campo de tempo estimado deve ter o mínimo de 5");
 
-            if (eventoPendente.TempoEstimado > 1440)
+            if (interesse.TempoEstimado.TimeOfDay.TotalMinutes > 1440)
                 throw new Exception("Campo de tempo estimado deve ter o máximo de 1440");
 
-            if (eventoPendente.PeriodoInicio == eventoPendente.PeriodoFim)
+            if (interesse.PeriodoInicio == interesse.PeriodoFim)
                 throw new Exception("Periodo fim e início não podem ser iguais.");
 
-            if (eventoPendente.PeriodoFim < eventoPendente.PeriodoInicio)
+            if (interesse.PeriodoFim < interesse.PeriodoInicio)
                 throw new Exception("Periodo fim não pode ser menor do que periodo início.");
 
-            if ((eventoPendente.PeriodoFim.TimeOfDay.TotalMinutes - eventoPendente.PeriodoInicio.TimeOfDay.TotalMinutes) * 1 < eventoPendente.TempoEstimado)
+            if ((interesse.PeriodoFim.TimeOfDay.TotalMinutes - interesse.PeriodoInicio.TimeOfDay.TotalMinutes) * 1 < interesse.TempoEstimado.TimeOfDay.TotalMinutes)
                 throw new Exception("Tempo estimado não pode ser maior que o período");
 
-            //if (eventoPendente.PeriodoInicio.Minute % 5 != 0 || eventoPendente.PeriodoFim.Minute % 5 != 0)
-            //    throw new Exception("Os horários de início e fim devem ser múltiplos de 5.");
+            if (interesse.IdUsuario != _tokenService.GetUserIdFromToken())
+                throw new Exception("Você não tem permissão para realizar esta operação.");
 
-            if (eventoPendente.TempoEstimado % 5 != 0 || eventoPendente.TempoEstimado % 5 != 0)
-                throw new Exception("O tempo estimado deve ser múltiplo de 5");
-
-            if (eventoPendente.Status != true)
-                eventoPendente.Status = true;
+            if (interesse.Status != true) interesse.Status = true;
 
         }
 
-        public void CadastrarEvento(EventosPendentes evento)
+        public InteressesDto CadastrarInteresse(InteressesDto interesseDto)
         {
-            ValidarEventoPendente(evento);
+            Interesses novoInteresse = new Interesses(
+                idInteresse: 0,
+                idUsuario: _tokenService.GetUserIdFromToken(),
+                nome: interesseDto.Nome,
+                categoria: interesseDto.Categoria,
+                prioridade: interesseDto.Prioridade,
+                status: interesseDto.Status,
+                tempoEstimado: interesseDto.TempoEstimado,
+                periodoInicio: interesseDto.PeriodoInicio,
+                periodoFim: interesseDto.PeriodoFim
+                
+            );
 
-            _eventosPendentesRepository.Adicionar(evento);
+            ValidarInteresse(novoInteresse);
+
+            _interessesRepository.Adicionar(novoInteresse);
+
+            return new InteressesDto
+            {
+                idInteresse = novoInteresse.IdInteresse,
+                PeriodoInicio = novoInteresse.PeriodoInicio,
+                PeriodoFim = novoInteresse.PeriodoFim,
+                Nome = novoInteresse.Nome,
+                TempoEstimado = novoInteresse.TempoEstimado,
+                Status = novoInteresse.Status,
+                Prioridade = novoInteresse.Prioridade
+            };
         }
 
-        public void AtualizarEvento(EventosPendentes evento)
+        public InteressesDto AtualizarInteresse(InteressesDto interesseDto)
         {
-            ValidarEventoPendente(evento);
+            Interesses interesseAtualizado = _interessesRepository.Obter(interesseDto.idInteresse);
 
-            _eventosPendentesRepository.Atualizar(evento);
+            interesseAtualizado.Nome = interesseDto.Nome;
+            interesseAtualizado.PeriodoInicio = interesseDto.PeriodoInicio;
+            interesseAtualizado.PeriodoFim = interesseDto.PeriodoFim;
+            interesseAtualizado.TempoEstimado = interesseDto.TempoEstimado;
+            interesseAtualizado.Prioridade = interesseDto.Prioridade;
+
+            ValidarInteresse(interesseAtualizado);
+
+            _interessesRepository.Atualizar(interesseAtualizado);
+
+            return interesseDto;
         }
 
-        public void DeletarEvento(int idEvento)
+        public void DeletarInteresse(int idInteresse)
         {
-            var evento = _eventosPendentesRepository.Obter(idEvento);
-            _eventosPendentesRepository.Remover(evento);
+            Interesses interesse = _interessesRepository.Obter(idInteresse);
+
+            if (interesse == null) throw new Exception("O interesse não foi encontrado");
+
+            if (interesse.IdUsuario != _tokenService.GetUserIdFromToken()) throw new UnauthorizedAccessException("Você não tem permissão para excluir este interesse.");
+
+            _interessesRepository.Remover(interesse);
         }
 
-        public EventosPendentes ObterEvento(int idEvento)
+        public Interesses ObterEvento(int idEvento)
         {
-            return _eventosPendentesRepository.Obter(idEvento);
+            return _interessesRepository.Obter(idEvento);
         }
 
-        public ICollection<EventosPendentes> ObterTodosEventos(int idUsuario)
+        public ICollection<Interesses> ObterInteressesDoUsuario(int idUsuario)
         {
-            return _eventosPendentesRepository.ObterEventosPendentesDoUsuario(idUsuario);
+            return _interessesRepository.ObterInteressesDoUsuario(idUsuario);
         }
 
         public string EncontrarHorarios(int idUsuario)
@@ -89,8 +133,8 @@ namespace StartupOne.Service
 
             ICollection<EventoMarcado> eventosMarcadosNoDia = new List<EventoMarcado>();
             List<(string, int)> temposDoDia = new List<(string, int)>();
-            ICollection<EventosPendentes> eventosPendentes = _eventosPendentesRepository
-                                                                .ObterEventosPendentesDoUsuario(idUsuario)
+            ICollection<Interesses> eventosPendentes = _interessesRepository
+                                                                .ObterInteressesDoUsuario(idUsuario)
                                                                 .OrderBy(x => x.Prioridade)
                                                                 .Where(x => x.Status == true)
                                                                 .ToList();
@@ -113,13 +157,13 @@ namespace StartupOne.Service
                                                                 .OrderBy(x => x.Inicio)
                                                                 .ToList();
 
-                    int intervalo = eventoPendente.TempoEstimado == 1440 ? 0 : 10;
+                    int intervalo = eventoPendente.TempoEstimado.TimeOfDay.TotalMinutes == 1440 ? 0 : 10;
                     
                     temposDoDia = ObterTemposDoDia(eventosMarcadosNoDia);
                     temposDoDia = AtualizarperiodoPermitido(temposDoDia, eventoPendente);
                     foreach (var tempo in temposDoDia)
                     {
-                        if (eventoPendente.TempoEstimado + intervalo <= tempo.Item2 && tempo.Item1 == "livre")
+                        if (eventoPendente.TempoEstimado.TimeOfDay.TotalMinutes + intervalo <= tempo.Item2 && tempo.Item1 == "livre")
                         {
                             AlocarEventoPendente(temposDoDia, tempo, eventoPendente);
                             break;
@@ -130,11 +174,11 @@ namespace StartupOne.Service
             }
             return "Ok";
         }
-        public void AlocarEventoPendente(List<(string, int)> temposDoDia, (string, int) tempo, EventosPendentes eventoPendente)
+        public void AlocarEventoPendente(List<(string, int)> temposDoDia, (string, int) tempo, Interesses eventoPendente)
         {
             var index = temposDoDia.IndexOf(tempo);
 
-            int tempoEvento = eventoPendente.TempoEstimado;
+            int tempoEvento = ((int)eventoPendente.TempoEstimado.TimeOfDay.TotalMinutes);
 
             int tempoRestante = (tempo.Item2 - tempoEvento) / 2;
 
@@ -170,7 +214,7 @@ namespace StartupOne.Service
 
             eventoPendente.Status = false;
 
-            _eventosPendentesRepository.Atualizar(eventoPendente);
+            _interessesRepository.Atualizar(eventoPendente);
 
             EventoMarcado alocarEvento = new EventoMarcado(
                     0,
@@ -225,7 +269,7 @@ namespace StartupOne.Service
 
             return listaDeTuplas;
         }
-        public List<(string, int)> AtualizarperiodoPermitido(List<(string, int)> temposDoDia, EventosPendentes eventoPendente)
+        public List<(string, int)> AtualizarperiodoPermitido(List<(string, int)> temposDoDia, Interesses eventoPendente)
         {
             var periodoInicioMinutos = eventoPendente.PeriodoInicio.TimeOfDay.TotalMinutes;
             var periodoFimMinutos = eventoPendente.PeriodoFim.TimeOfDay.TotalMinutes;

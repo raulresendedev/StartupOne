@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using StartupOne.Dto.Interesses;
 using StartupOne.Models;
 using StartupOne.Service;
 using StartupOne.Utils;
@@ -7,19 +8,22 @@ using StartupOne.Utils;
 namespace StartupOne.Controllers
 {
     [Route("api/[controller]")]
-    public class EventosPendentesController : Controller
+    public class InteressesController : Controller
     {
-        private EventosPendentesService _eventosPendentesService = new EventosPendentesService();
+        private InteressesService _interessesService;
+
+        public InteressesController(InteressesService eventosPendentesService)
+        {
+            _interessesService = eventosPendentesService;
+        }
 
         [HttpPost("cadastrar")]
-        [ValidateModel]
         [Authorize]
-        public IActionResult CadastrarEvento([FromBody] EventosPendentes evento)
+        public IActionResult CadastrarInteresse([FromBody] InteressesDto interesseDto)
         {
             try
             {
-                _eventosPendentesService.CadastrarEvento(evento);
-                return Ok(evento);
+                return Ok(_interessesService.CadastrarInteresse(interesseDto));
             }
             catch (Exception ex)
             {
@@ -27,14 +31,14 @@ namespace StartupOne.Controllers
             }
         }
 
-        [HttpGet("buscar-todos-por-usuario/{idUsuario}")]
+        [HttpGet("buscar-interesses-do-usuario/{idUsuario}")]
         [Authorize]
         public IActionResult ObterTodosEventos([FromRoute] int idUsuario)
         {
             try
             {
-                var eventosUsuario = _eventosPendentesService.ObterTodosEventos(idUsuario);
-                return Ok(eventosUsuario);
+                var interesses = _interessesService.ObterInteressesDoUsuario(idUsuario);
+                return Ok(interesses);
             }
             catch (Exception ex)
             {
@@ -48,7 +52,7 @@ namespace StartupOne.Controllers
         {
             try
             {
-                var eventosUsuario = _eventosPendentesService.ObterEvento(idUsuario);
+                var eventosUsuario = _interessesService.ObterEvento(idUsuario);
                 return Ok(eventosUsuario);
             }
             catch (Exception ex)
@@ -57,15 +61,15 @@ namespace StartupOne.Controllers
             }
         }
 
-        [HttpDelete("deletar-evento/{idEvento}")]
+        [HttpDelete("deletar-interesse/{idInteresse}")]
         [Authorize]
-        public IActionResult DeletarEvento([FromRoute] int idEvento)
+        public IActionResult DeletarInteresse([FromRoute] int idInteresse)
         {
             {
                 try
                 {
-                    _eventosPendentesService.DeletarEvento(idEvento);
-                    return Ok("Evento deletado com sucesso!");
+                    _interessesService.DeletarInteresse(idInteresse);
+                    return Ok("Interesse deletado com sucesso!");
                 }
                 catch (Exception ex)
                 {
@@ -74,15 +78,15 @@ namespace StartupOne.Controllers
             }
         }
 
-        [HttpPatch("atualizar-evento")]
+        [HttpPut("atualizar-interesse")]
         [Authorize]
-        public IActionResult AtualizarEvento([FromBody] EventosPendentes evento)
+        public IActionResult AtualizarInteresse([FromBody] InteressesDto interessesDto)
         {
             {
                 try
                 {
-                    _eventosPendentesService.AtualizarEvento(evento);
-                    return Ok(evento);
+                    _interessesService.AtualizarInteresse(interessesDto);
+                    return Ok(interessesDto);
                 }
                 catch (Exception ex)
                 {
@@ -98,7 +102,7 @@ namespace StartupOne.Controllers
             {
                 try
                 {
-                    string result = _eventosPendentesService.EncontrarHorarios(idUsuario);
+                    string result = _interessesService.EncontrarHorarios(idUsuario);
                     return Ok(result);
                 }
                 catch (Exception ex)

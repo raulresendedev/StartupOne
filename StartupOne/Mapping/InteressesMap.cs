@@ -4,16 +4,16 @@ using StartupOne.Models;
 
 namespace StartupOne.Mapping
 {
-    public class EventosPendentesMap : IEntityTypeConfiguration<EventosPendentes>
+    public class InteressesMap : IEntityTypeConfiguration<Interesses>
     {
-        public void Configure(EntityTypeBuilder<EventosPendentes> builder)
+        public void Configure(EntityTypeBuilder<Interesses> builder)
         {
-            builder.ToTable("T_STO_EVENTOS_PENDENTES");
+            builder.ToTable("T_STO_INTERESSE");
 
-            builder.HasKey(u => u.IdEventoPendente);
+            builder.HasKey(u => u.IdInteresse);
 
-            builder.Property(u => u.IdEventoPendente)
-                .HasColumnName("CD_EVENTO_PENDENTE");
+            builder.Property(u => u.IdInteresse)
+                .HasColumnName("CD_INTERESSE");
 
             builder.Property(u => u.Nome)
                 .IsRequired()
@@ -37,7 +37,7 @@ namespace StartupOne.Mapping
                     .HasColumnName("ST_PRIORIDADE");
 
             builder.Property(u => u.TempoEstimado)
-                   .HasColumnName("NM_TEMPO_ESTIMADO");
+                   .HasColumnName("DT_TEMPO_ESTIMADO");
 
             builder.HasOne(x => x.Usuario)
                    .WithMany(u => u.EventosPendentes)

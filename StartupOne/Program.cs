@@ -10,12 +10,13 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddScoped<UsuarioService>();
-builder.Services.AddScoped<UsuarioRepository>();
-
 builder.Services.AddScoped<EventoMarcadoService>();
-builder.Services.AddScoped<EventoMarcadoRepository>();
-
+builder.Services.AddScoped<InteressesService>();
 builder.Services.AddScoped<TokenService>();
+
+builder.Services.AddScoped<UsuarioRepository>();
+builder.Services.AddScoped<EventoMarcadoRepository>();
+builder.Services.AddScoped<InteressesRepository>();
 
 builder.Services.AddHttpContextAccessor();
 

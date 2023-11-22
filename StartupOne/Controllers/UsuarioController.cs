@@ -8,7 +8,7 @@ using StartupOne.Utils;
 
 namespace StartupOne.Controllers
 {
-    //https://localhost:7148/api/Usuario
+
     [Route("api/[controller]")]
     public class UsuarioController : Controller
     {
